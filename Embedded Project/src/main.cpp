@@ -17,8 +17,8 @@ void loop() {
   Serial.println("Tremor: " + type + ", intensity: " + String(intensity));
 
   if(type == "normal"){
-    handleLEDTM(intensity);
-    handleSoundTM(intensity);
+    handleLEDN(intensity);
+    handleSoundN(intensity);
   } 
 
   else if(type == "tremor"){
@@ -28,7 +28,7 @@ void loop() {
   
   else if (type == "dyskinesia") {
     handleLEDDK(intensity);
-    handleSoundTM(intensity);
+    handleSoundDK(intensity);
   }
 
   //default value, meaning didnt change variable or undefined
