@@ -13,7 +13,8 @@ void loop() {
   String type;
   float intensity;
 
-  detect_tremor(type, intensity);  // modifies type & intensity by reference
+  // detect_tremor(type, intensity);  // modifies type & intensity by reference
+  type = "tremor";
   Serial.println("Tremor: " + type + ", intensity: " + String(intensity));
 
   if(type == "normal"){
@@ -35,6 +36,4 @@ void loop() {
   else { 
     // must have logic for if detection did not happen
   }
-
-  delay(1000);
 }
