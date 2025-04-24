@@ -4,8 +4,8 @@
 
 const int speaker = 5;
 const char* dk_notes[3] = {"E", "F", "E"};
-const char* tm_notes[3] = {"C", "G", "C"};
-const char* n_notes[3] = {"C", "D", "E"};
+const char* tm_notes[3] = {"C", "A#", "F#"}; 
+const char* n_notes[3] = {"C", "E", "G"}; //major chord for happy sound
 int numNotes = 3;
 
 unsigned long lastNoteTime = 0;

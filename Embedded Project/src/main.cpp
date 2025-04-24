@@ -14,7 +14,7 @@ void loop() {
   float intensity;
 
   // detect_tremor(type, intensity);  // modifies type & intensity by reference
-  type = "tremor";
+  type = "dyskinesia";
   Serial.println("Tremor: " + type + ", intensity: " + String(intensity));
 
   if(type == "normal"){
