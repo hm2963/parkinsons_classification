@@ -7,11 +7,14 @@
 void setup() {
   initLED();  // put init function from your feature
   initSound(); // put init function from your feature
+  acc_setup();
 }
 
 void loop() {
   String type;
   float intensity;
+
+  getdata();
 
   detect_tremor(type, intensity);  // modifies type & intensity by reference
   Serial.println("Tremor: " + type + ", intensity: " + String(intensity));
