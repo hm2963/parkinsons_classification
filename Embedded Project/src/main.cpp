@@ -11,23 +11,26 @@ void setup() {
 
 void loop() {
   String type;
-  float freq;
+  float intensity;
 
-  detect_tremor(type, freq);   // Perform real detection
+  detect_tremor(type, intensity);   // Real detection using FFT sums
 
   if (type == "normal") {
-    handleLEDN(freq);
-    handleSoundN(freq);
+    handleLEDN(intensity);
+    handleSoundN(intensity);
   } else if (type == "tremor") {
-    handleLEDTM(freq);
-    handleSoundTM(freq);
+    handleLEDTM(intensity);
+    handleSoundTM(intensity);
   } else if (type == "dyskinesia") {
-    handleLEDDK(freq);
-    handleSoundDK(freq);
+    handleLEDDK(intensity);
+    handleSoundDK(intensity);
+  } else if (type == "both") {
+    handleLEDBoth(intensity);
+    // Add: handleSoundBoth(intensity); if you implement it
   } else {
     Serial.println("Unrecognized movement or noise.");
-    // Optional: Turn off LEDs or set a neutral color
+    // Optional: reset LEDs/sound
   }
 
-  delay(1000);  // Small delay before next detection cycle
+  delay(1000);
 }
