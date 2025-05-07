@@ -3,16 +3,10 @@
 #include "arduinoFFT.h"
 #include <math.h> 
 
-#define SAMPLES 64
-#define MAX_SIZE (SAMPLES >> 1)
-
-
 #define SCL_INDEX 0x00
 #define SCL_TIME 0x01
 #define SCL_FREQUENCY 0x02
 #define SCL_PLOT 0x03
-
-int peak_indices[MAX_SIZE]; 
 
 // Accelerometer Setup
 void acc_setup() {
@@ -49,47 +43,87 @@ void collectFFTData() {
 }
 
 // Detect Tremor using FFT
-void detect_tremor(String &label, float &frequency) {
+void detect_tremor(String &label, float &intensity) {
   collectFFTData();
+
   FFT.dcRemoval();
-  FFT.windowing(FFTWindow::Hamming, FFTDirection::Forward);
+  FFT.windowing(FFTWindow::Hann, FFTDirection::Forward);	
   FFT.compute(FFTDirection::Forward);
   FFT.complexToMagnitude();
 
-  // (Optional) smoothing
-  applyMovingAverage(vReal, MAX_SIZE, 1);
-  PrintVector(vReal, samples>>1, SCL_FREQUENCY);
+  applyMovingAverage(vReal, samples >> 1, 2);
+  PrintVector(vReal, samples >> 1, SCL_FREQUENCY);
 
-  // Find peaks directly from vReal[]
-  int num_peaks = find_peaks(vReal, MAX_SIZE, peak_indices, 0.05, 4);
+  // Sum magnitudes in tremor and dyskinesia frequency ranges
+  double binWidth = (samplingFrequency / samples); // ~0.333 Hz per bin
+  double tremorSum = 0.0;
+  double dyskinesiaSum = 0.0;
+  double totalEnergy = 0.0;
 
-  // Print detected peaks
-  for (int i = 0; i < num_peaks; i++) {
-    int bin_index = peak_indices[i];
-    double frequency = (bin_index * samplingFrequency) / samples;  // Frequency for the peak bin
-  
-    Serial.print("Peak at bin ");
-    Serial.print(bin_index);
-    Serial.print(" corresponds to frequency: ");
-    Serial.print(frequency, 2);  // Print frequency with 2 decimal places
-    Serial.print(" Hz, with magnitude: ");
-    Serial.println(vReal[bin_index]);
+  const double MIN_TOTAL_ENERGY = 30;  // <<< Experiment with this value
+
+  for (uint16_t i = 1; i < (samples / 2); i++) {
+    double freq = i * binWidth;
+    double mag = vReal[i];
+    double energy = mag * mag;
+
+    if (mag >= 0.3) {  // Threshold to ignore small/noisy signals
+      totalEnergy += energy;
+    
+      if (freq >= 3.0 && freq <= 5.0) {
+        tremorSum += energy;
+      } else if (freq > 5.0 && freq <= 7.0) {
+        dyskinesiaSum += energy;
+      }
+    }
+
+    // Print magnitude for each frequency bin
+    // Serial.print("Freq: ");
+    // Serial.print(freq, 2);
+    // Serial.print(" Hz, Mag: ");
+    // Serial.print(mag, 4);
+    // Serial.print(", Energy: ");
+    // Serial.println(energy, 4);
   }
-  
 
+  // Print summary stats
+  // Serial.print("Total Energy: ");
+  // Serial.println(totalEnergy, 4);
+  // Serial.print("Tremor Energy Sum: ");
+  // Serial.println(tremorSum, 4);
+  // Serial.print("Dyskinesia Energy Sum: ");
+  // Serial.println(dyskinesiaSum, 4);
 
-  // Classify based on frequency
-  if (frequency < 2.0) {
+  double tremorRatio = tremorSum / totalEnergy;
+  double dyskinesiaRatio = dyskinesiaSum / totalEnergy;
+
+  Serial.print("Tremor Ratio: ");
+  Serial.println(tremorRatio, 4);
+  Serial.print("Dyskinesia Ratio: ");
+  Serial.println(dyskinesiaRatio, 4);
+
+  if (totalEnergy < MIN_TOTAL_ENERGY) {
     label = "normal";
-  } else if (frequency < 4.0) {
+    intensity = 10.0;
+  }
+  else if (tremorRatio >= 0.16 && dyskinesiaRatio >= 0.16) {
+    label = "both";
+    intensity = fmax(tremorRatio, dyskinesiaRatio);
+  } 
+  else if (tremorRatio >= 0.33) {
     label = "tremor";
-  } else if (frequency < 6.0) {
+    intensity = tremorRatio;
+  } 
+  else if (dyskinesiaRatio >= 0.33) {
     label = "dyskinesia";
-  } else {
-    label = "unknown";
+    intensity = dyskinesiaRatio;
+  } 
+  else {
+    label = "normal";
+    intensity = 10.0;
   }
 
-  // Serial.println("Condition Detected: " + label);
+  intensity = constrain(intensity, 0.0, 1.2); // Cap for LED scaling
 }
 
 void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
@@ -114,12 +148,14 @@ void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
     if(scaleType!=SCL_PLOT)
     {
       Serial.print(">Hz:");
+      // Serial.print(vData[i], 4);
       Serial.print(abscissa, 6);
       if(scaleType==SCL_FREQUENCY)
         Serial.print(":");
       // Serial.print("");
     }
     Serial.print(vData[i], 4);
+    // Serial.print(abscissa, 6);
     Serial.println(":1627551892437|xy");
 
   }
@@ -149,39 +185,3 @@ void applyMovingAverage(double *vData, uint16_t bufferSize, uint8_t windowSize) 
     vData[i] = temp[i];
   }
 }
-
-int find_peaks(const double* magnitudes, int size, int* peak_indices, 
-  double threshold_ratio = 0.3, int min_distance = 1) {
-  double max_val = 0.0;
-  int peak_count = 0;
-
-// Find max magnitude
-  for (int i = 0; i < size; ++i) {
-    if (magnitudes[i] > max_val) {
-      max_val = magnitudes[i];
-    }
-  }
-
-if (max_val == 0.0) return 0; // Avoid divide-by-zero
-
-for (int i = 1; i < size - 1; ++i) {
-  double prev = magnitudes[i - 1];
-  double curr = magnitudes[i];
-  double next = magnitudes[i + 1];
-  double norm = curr / max_val;
-
-  if (norm >= threshold_ratio && curr > prev && curr > next) {
-    if (peak_count == 0 || (i - peak_indices[peak_count - 1]) >= min_distance) {
-      peak_indices[peak_count++] = i;
-    } else if (curr > magnitudes[peak_indices[peak_count - 1]]) {
-      peak_indices[peak_count - 1] = i; // Replace weaker peak
-    }
-  }
-}
-
-return peak_count;
-}
-
-
-
-
