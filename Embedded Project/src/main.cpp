@@ -23,8 +23,5 @@ void loop() {
     handleLEDBoth(intensity);  // New LED logic for both tremor and dyskinesia
   } else {
     Serial.println("Unrecognized movement or noise.");
-    // Optional: turn off LEDs or show a neutral color
   }
-
-  delay(1000);  // Wait 1 second before next FFT scan
 }

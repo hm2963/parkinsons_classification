@@ -9,8 +9,6 @@ void initLED() {
 // Helper: map intensity (0.0 to ~1.5) to brightness (0 to 100)
 int calculateBrightness(float intensity) {
   int brightness = int(intensity * 100);
-  // if (brightness < 10) brightness = 10;    // Ensure visible output
-  // if (brightness > 100) brightness = 100;  // Cap at max brightness
   return brightness;
 }
 
