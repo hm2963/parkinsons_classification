@@ -1,7 +1,7 @@
 # Shake, Rattle, and Roll – Wearable Tremor & Dyskinesia Detection
 
 > **Final project for Embedded Systems (NYU New York, Spring 2025)**  
-> Developed collaboratively with [Mathew Ponon](https://github.com/mop9047) and [Georges Mechleb](https://github.com/GMechleb).  
+> Developed collaboratively with [Matthew Ponon](https://github.com/mop9047) and [Gaelle Mechleb](https://github.com/GMechleb).  
 > This fork documents my contributions and provides a detailed project overview.
 
 ---
