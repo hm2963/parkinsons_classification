@@ -23,7 +23,7 @@ By applying **FFT-based signal analysis**, the system identifies movement patter
 
 ## 🚀 Features
 - **3-second motion capture** windows for accurate frequency analysis
-- **FFT signal processing** to identify tremor (4–6 Hz) and dyskinesia (1–3 Hz) ranges
+- **FFT signal processing** to identify tremor (3–5 Hz) and dyskinesia (5–7 Hz) ranges
 - **Dynamic LED feedback** indicating movement type and intensity
 - **Smoothing filters** to reduce false positives
 - Modular code structure (`led_logic`, `tremor_detection`) for maintainability
@@ -34,8 +34,8 @@ By applying **FFT-based signal analysis**, the system identifies movement patter
 1. Captures 3 seconds of motion data from the onboard accelerometer.
 2. Runs an **FFT** to transform the time-domain signal into frequency-domain data.
 3. Classifies movement as:
-   - Tremor (4–6 Hz)
-   - Dyskinesia (1–3 Hz)
+   - Tremor (3–5 Hz)
+   - Dyskinesia (5–7 Hz)
    - Normal movement
 4. Maps classification results to **NeoPixel LEDs**:
    - Color indicates movement type
