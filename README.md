@@ -89,7 +89,7 @@ pio device monitor
 ---
 
 ## 📸 Demo
-[![Watch the video](https://img.youtube.com/vi-zFxZeUSkyk/0.jpg)](https://youtu.be/-zFxZeUSkyk)
+[![Watch the video](https://img.youtube.com/vi/-zFxZeUSkyk/0.jpg)](https://youtu.be/-zFxZeUSkyk)
 
 ---
 
