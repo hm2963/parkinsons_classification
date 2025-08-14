@@ -89,7 +89,7 @@ pio device monitor
 ---
 
 ## 📸 Demo
-*(Optional – Add photos or videos of the device in use)*
+<video src="assets/demo.mp4" controls width="600"></video>
 
 ---
 
